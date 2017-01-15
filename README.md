@@ -6,7 +6,7 @@ kiny is based on vert.x for great networking capabilities
 
 # example
 
-create your function endpoint by simply posting a JSON to ```/add``
+create your function endpoint by simply posting a JSON to ```/add```
 ```
 curl -d '{
   "name": "bar",
