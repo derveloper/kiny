@@ -2,7 +2,9 @@
 
 your super simple private serverless service running your kotlin (1.1-M04) functions like aws lambda
 
-kiny is based on [vert.x](https://github.com/vert-x3) for great networking capabilities
+kiny compiles your kotlin function on the fly and attaches it to a route
+
+HTTP server and routing via [vert.x](https://github.com/vert-x3)
 
 ## example
 
