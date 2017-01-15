@@ -6,7 +6,16 @@ kiny is based on [vert.x](https://github.com/vert-x3) for great networking capab
 
 # example
 
-create your function endpoint by simply posting a JSON to ```/add```
+### use gradle to build
+```./gradlew assemble```
+
+### run kiny
+```
+java -jar build/libs/kiny-1.0-SNAPSHOT.jar
+```
+
+### create your endpoint
+by simply posting a JSON to ```/add```
 ```
 curl -d '{
   "name": "bar",
@@ -14,6 +23,7 @@ curl -d '{
 }' http://localhost:9090/add
 ```
 
+### use
 use the created function, you can use all HTTP methods e.g. ```GET```
 ```
 curl http://localhost:9090/bar
