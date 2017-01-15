@@ -28,7 +28,7 @@ by simply posting a JSON to ```/add```
 ```
 curl -d '{
   "name": "bar",
-  "code": "fun handle(context: io.vertx.ext.web.RoutingContext) { context.response().end(\"bar\") }"
+  "code": "import io.vertx.core.json.JsonObject;fun handle(request: JsonObject): JsonObject { return JsonObject().put(\"status\", 200).put(\"body\", \"hello world!!\")}"
 }' http://localhost:9090/add
 ```
 
