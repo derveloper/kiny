@@ -36,6 +36,10 @@
 </head>
 <body>
     <h1>kiny console</h1>
+
+    <h4>create a function</h4>
+    <p>the function runs in its own vertx verticle</p>
+
     <form id="add_form" action="/add" method="post">
         <label id="name_label">
             /fn/<input id="name" type="text" placeholder="name" name="name" required>
@@ -50,11 +54,30 @@ fun handle(request: JsonObject): JsonObject {
             </textarea>
         </label>
         <button type="submit">create</button>
+        <span id="message"></span>
     </form>
     <script>
         function postJson(url, data) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', url);
+            xhr.onreadystatechange = function () {
+                var DONE = 4;
+                var OK = 200;
+                if (xhr.readyState === DONE) {
+                    if (xhr.status === OK) {
+                        document.getElementById('message').textContent = "created function " + location.origin + "/fn/" + data.name;
+                        setTimeout(function () {
+                            document.getElementById('message').textContent = '';
+                        }, 3600);
+                    }
+                } else {
+                    document.getElementById('message').textContent = 'Error: ' + xhr.status;
+                    setTimeout(function () {
+                        document.getElementById('message').textContent = '';
+                    }, 3600);
+                    console.log('Error: ' + xhr.status);
+                }
+            };
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify(data));
         }
@@ -78,6 +101,10 @@ fun handle(request: JsonObject): JsonObject {
 
         document.getElementById('add_form').addEventListener("submit", function(evt) {
             evt.preventDefault();
+            document.getElementById('message').textContent = "creating...";
+            setTimeout(function () {
+                document.getElementById('message').textContent = '';
+            }, 3600);
             postJson('/add', {name: evt.target.elements[0].value, code: myCodeMirror.getValue()})
         });
     </script>
