@@ -2,7 +2,7 @@
 
 your super simple private serverless service running your kotlin functions like aws lambda
 
-kiny is based on (vert.x)[https://github.com/vert-x3] for great networking capabilities
+kiny is based on [vert.x](https://github.com/vert-x3) for great networking capabilities
 
 # example
 
