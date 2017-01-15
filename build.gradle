@@ -14,6 +14,9 @@ buildscript {
 }
 
 apply plugin: 'kotlin'
+apply plugin: 'application'
+
+mainClassName = "cc.vileda.kiny.KinyMainKt"
 
 repositories {
     maven { url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1' }
