@@ -66,15 +66,9 @@ fun handle(request: JsonObject): JsonObject {
                 if (xhr.readyState === DONE) {
                     if (xhr.status === OK) {
                         document.getElementById('message').textContent = "created function " + location.origin + "/fn/" + data.name;
-                        setTimeout(function () {
-                            document.getElementById('message').textContent = '';
-                        }, 3600);
                     }
                 } else {
                     document.getElementById('message').textContent = 'Error: ' + xhr.status;
-                    setTimeout(function () {
-                        document.getElementById('message').textContent = '';
-                    }, 3600);
                     console.log('Error: ' + xhr.status);
                 }
             };
@@ -102,9 +96,6 @@ fun handle(request: JsonObject): JsonObject {
         document.getElementById('add_form').addEventListener("submit", function(evt) {
             evt.preventDefault();
             document.getElementById('message').textContent = "creating...";
-            setTimeout(function () {
-                document.getElementById('message').textContent = '';
-            }, 3600);
             postJson('/add', {name: evt.target.elements[0].value, code: myCodeMirror.getValue()})
         });
     </script>
