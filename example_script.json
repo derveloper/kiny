@@ -1,0 +1,4 @@
+{
+  "name": "bar",
+  "code": "fun handle(context: io.vertx.ext.web.RoutingContext) { context.response().end(\"bar\") }"
+}
