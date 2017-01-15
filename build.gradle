@@ -14,9 +14,6 @@ buildscript {
 }
 
 apply plugin: 'kotlin'
-apply plugin: 'application'
-
-mainClassName = "cc.vileda.kiny.KinyMainKt"
 
 repositories {
     maven { url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1' }
@@ -29,5 +26,13 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-runtime:$kotlin_version"
     compile 'io.vertx:vertx-core:3.3.3'
     compile 'io.vertx:vertx-web:3.3.3'
-    compile 'junit:junit:4.12'
+    testCompile 'junit:junit:4.12'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'cc.vileda.kiny.KinyMainKt'
+    }
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
 }

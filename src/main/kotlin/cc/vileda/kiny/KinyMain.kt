@@ -27,9 +27,14 @@ import org.jetbrains.kotlin.util.ExtensionProvider
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import java.lang.reflect.Method
+import java.net.URI
+import java.net.URL
+import java.net.URLClassLoader
 import java.nio.file.Files
+import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
+import java.util.jar.Manifest
 
 
 fun main(args: Array<String>) {
@@ -72,11 +77,13 @@ data class AppDef(val name: String, val code: String) {
 
 fun compile(taskPath: String): Class<*> {
     val classpathEntries = System.getProperty("java.class.path").split(File.pathSeparator)
+    val classpathEntries2 = System.getProperty("sun.boot.class.path").split(File.pathSeparator)
+
 
     val configuration = CompilerConfiguration().apply {
         put<MessageCollector>(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, PrintingMessageCollector(System.err, MessageRenderer.PLAIN_RELATIVE_PATHS, false))
         addKotlinSourceRoot(taskPath)
-        addJvmClasspathRoots(classpathEntries.map(::File))
+        addJvmClasspathRoots(classpathEntries.map(::File).plus(classpathEntries2.map(::File)))
         addJvmClasspathRoot(PathUtil.getPathUtilJar())
         put(MODULE_NAME, "cc.vileda.kiny")
     }
