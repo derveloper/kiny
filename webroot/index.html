@@ -10,6 +10,17 @@
     <link rel="stylesheet" href="/console/codemirror-5.22.0/addon/hint/show-hint.css">
     <link rel="stylesheet" href="/console/codemirror-5.22.0/theme/dracula.css">
 
+    <style>
+        #name_label {
+            font-size: 16px;
+        }
+        #name {
+            margin-bottom: 20px;
+            font-size: 16px;
+            border: none;
+        }
+    </style>
+
     <script src="/console/codemirror-5.22.0/lib/codemirror.js"></script>
     <script src="/console/codemirror-5.22.0/mode/clike/clike.js"></script>
     <script src="/console/codemirror-5.22.0/mode/javascript/javascript.js"></script>
@@ -26,11 +37,11 @@
 <body>
     <h1>kiny console</h1>
     <form id="add_form" action="/add" method="post">
-        <label>
-            <input id="name" type="text" placeholder="name" name="name" required>
+        <label id="name_label">
+            /fn/<input id="name" type="text" placeholder="name" name="name" required>
         </label>
         <label>
-            <textarea name="code" id="code" cols="100" rows="80" required></textarea>
+            <textarea name="code" id="code" cols="100" rows="80"></textarea>
         </label>
         <button type="submit">create</button>
     </form>
@@ -64,11 +75,5 @@
             }
         );
     </script>
-    <style>
-        #name {
-            margin-bottom: 20px;
-            font-size: 16px;
-        }
-    </style>
 </body>
 </html>

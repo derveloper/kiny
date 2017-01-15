@@ -35,7 +35,7 @@ curl -d '{
 ### use
 use the created function, you can use all HTTP methods e.g. ```GET```
 ```
-curl http://localhost:9090/bar
+curl http://localhost:9090/fn/bar
 ```
 
 ## warning

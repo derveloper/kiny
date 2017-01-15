@@ -53,8 +53,8 @@ fun main(args: Array<String>) {
         val json = it.bodyAsJson
         val name = json.getString("name")
         apps.put(name, AppDef(name, json.getString("code")))
-        router.routes.removeIf { it.path == "/$name" }
-        router.route("/$name").handler {
+        router.routes.removeIf { it.path == "/fn/$name" }
+        router.route("/fn/$name").handler {
             val appDef = apps[name]
             appDef?.invoke(it)
         }
