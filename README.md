@@ -6,6 +6,10 @@ kiny compiles your kotlin function on the fly and attaches it to a route
 
 HTTP server and routing via [vert.x](https://github.com/vert-x3)
 
+## demo
+
+you can find a demo instance at [https://kiny.herokuapp.com/console](https://kiny.herokuapp.com/console)
+
 ## example
 
 ### use gradle to build
