@@ -41,7 +41,13 @@
             /fn/<input id="name" type="text" placeholder="name" name="name" required>
         </label>
         <label>
-            <textarea name="code" id="code" cols="100" rows="80"></textarea>
+            <textarea name="code" id="code" cols="100" rows="80">
+import io.vertx.ext.web.*
+
+fun handle(context: RoutingContext) {
+  context.response().end("hello world!")
+}
+            </textarea>
         </label>
         <button type="submit">create</button>
     </form>
