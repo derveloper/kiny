@@ -6,6 +6,7 @@ import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
 import io.vertx.ext.web.handler.CookieHandler
+import io.vertx.ext.web.handler.StaticHandler
 import org.jetbrains.kotlin.cli.common.CLIConfigurationKeys
 import org.jetbrains.kotlin.cli.common.messages.MessageCollector
 import org.jetbrains.kotlin.cli.common.messages.MessageRenderer
@@ -27,14 +28,9 @@ import org.jetbrains.kotlin.util.ExtensionProvider
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 import java.lang.reflect.Method
-import java.net.URI
-import java.net.URL
-import java.net.URLClassLoader
 import java.nio.file.Files
-import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
-import java.util.jar.Manifest
 
 
 fun main(args: Array<String>) {
@@ -46,9 +42,12 @@ fun main(args: Array<String>) {
 
     val bodyHandler = BodyHandler.create()
     val cookieHandler = CookieHandler.create()
+    val staticHandler = StaticHandler.create()
 
     router.route().handler { bodyHandler.handle(it) }
     router.route().handler { cookieHandler.handle(it) }
+    router.route("/console").handler { staticHandler.handle(it) }
+    router.route("/console/*").handler { staticHandler.handle(it) }
 
     router.post("/add").handler {
         val json = it.bodyAsJson

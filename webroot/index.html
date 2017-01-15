@@ -1,0 +1,73 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>kiny console</title>
+    <link rel="stylesheet" href="/console/codemirror-5.22.0/lib/codemirror.css">
+    <link rel="stylesheet" href="/console/codemirror-5.22.0/addon/dialog/dialog.css">
+    <link rel="stylesheet" href="/console/codemirror-5.22.0/addon/hint/show-hint.css">
+    <link rel="stylesheet" href="/console/codemirror-5.22.0/theme/dracula.css">
+
+    <script src="/console/codemirror-5.22.0/lib/codemirror.js"></script>
+    <script src="/console/codemirror-5.22.0/mode/clike/clike.js"></script>
+    <script src="/console/codemirror-5.22.0/mode/javascript/javascript.js"></script>
+    <script src="/console/codemirror-5.22.0/addon/dialog/dialog.js"></script>
+    <script src="/console/codemirror-5.22.0/addon/selection/active-line.js"></script>
+    <script src="/console/codemirror-5.22.0/addon/edit/matchbrackets.js"></script>
+    <script src="/console/codemirror-5.22.0/addon/edit/closebrackets.js"></script>
+    <script src="/console/codemirror-5.22.0/addon/comment/comment.js"></script>
+    <script src="/console/codemirror-5.22.0/addon/comment/continuecomment.js"></script>
+    <script src="/console/codemirror-5.22.0/addon/runmode/runmode.js"></script>
+    <script src="/console/codemirror-5.22.0/addon/runmode/colorize.js"></script>
+    <script src="/console/codemirror-5.22.0/addon/hint/show-hint.js"></script>
+</head>
+<body>
+    <h1>kiny console</h1>
+    <form id="add_form" action="/add" method="post">
+        <label>
+            <input type="text" placeholder="name" name="name" required>
+        </label>
+        <label>
+            <textarea name="code" id="code" cols="100" rows="80" required></textarea>
+        </label>
+        <button type="submit">create</button>
+    </form>
+    <script>
+        function postJson(url, data) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', url);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(data));
+        }
+
+        document.getElementById('add_form').addEventListener("submit", function(evt) {
+            evt.preventDefault();
+            postJson('/add', {name: evt.target.elements[0].value, code: evt.target.elements[1].value})
+        });
+
+        var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"),
+            {
+                "lineNumbers": true,
+                "matchBrackets": true,
+                "styleActiveLine": true,
+                "mode": "text/x-kotlin",
+                "autofocus": false,
+                "indentUnit": 2,
+                "indentWithTabs": false,
+                "smartIndent": true,
+                "theme": "dracula",
+                "workDelay": 100,
+                "moveInputWithCursor": true,
+                "autoCloseBrackets": false,
+            }
+        );
+    </script>
+    <style>
+        #code {
+            border: 2px solid #000;
+        }
+    </style>
+</body>
+</html>
