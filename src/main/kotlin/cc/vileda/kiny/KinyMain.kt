@@ -61,7 +61,7 @@ fun main(args: Array<String>) {
         it.response().end("Added")
     }
 
-    createHttpServer.requestHandler { router.accept(it) }.listen(9090)
+    createHttpServer.requestHandler { router.accept(it) }.listen(Integer.valueOf(System.getProperty("server.port", "9090")))
 }
 
 data class AppDef(val name: String, val code: String) {
