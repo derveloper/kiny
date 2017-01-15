@@ -2,7 +2,7 @@
 
 your super simple private serverless service running your kotlin functions like aws lambda
 
-kiny is based on vert.x for great networking capabilities
+kiny is based on (vert.x)[https://github.com/vert-x3] for great networking capabilities
 
 # example
 
@@ -14,7 +14,7 @@ curl -d '{
 }' http://localhost:9090/add
 ```
 
-use the created function
+use the created function, you can use all HTTP methods e.g. ```GET```
 ```
 curl http://localhost:9090/bar
 ```
