@@ -16,7 +16,10 @@ HTTP server and routing via [vert.x](https://github.com/vert-x3)
 java -jar build/libs/kiny-1.0-SNAPSHOT.jar
 ```
 
-### create your endpoint
+### create your endpoint via web console
+open [http://localhost:9090/console](http://localhost:9090/console) in your browser
+
+### create your endpoint via command line
 by simply posting a JSON to ```/add```
 ```
 curl -d '{
