@@ -1,10 +1,10 @@
 # kiny
 
-your super simple private serverless service running your kotlin functions like aws lambda
+your super simple private serverless service running your kotlin (1.1-M04) functions like aws lambda
 
 kiny is based on [vert.x](https://github.com/vert-x3) for great networking capabilities
 
-# example
+## example
 
 ### use gradle to build
 ```./gradlew assemble```
@@ -29,6 +29,6 @@ use the created function, you can use all HTTP methods e.g. ```GET```
 curl http://localhost:9090/bar
 ```
 
-# warning
+## warning
 
 kiny is highly experimental
