@@ -42,10 +42,10 @@
         </label>
         <label>
             <textarea name="code" id="code" cols="100" rows="80">
-import io.vertx.ext.web.*
+import io.vertx.core.json.JsonObject
 
-fun handle(context: RoutingContext) {
-  context.response().end("hello world!")
+fun handle(request: JsonObject): JsonObject {
+  return JsonObject().put("status", 200).put("body", "hello world!!")
 }
             </textarea>
         </label>
@@ -58,11 +58,6 @@ fun handle(context: RoutingContext) {
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify(data));
         }
-
-        document.getElementById('add_form').addEventListener("submit", function(evt) {
-            evt.preventDefault();
-            postJson('/add', {name: evt.target.elements[0].value, code: evt.target.elements[1].value})
-        });
 
         var myCodeMirror = CodeMirror.fromTextArea(document.getElementById("code"),
             {
@@ -80,6 +75,11 @@ fun handle(context: RoutingContext) {
                 "autoCloseBrackets": false,
             }
         );
+
+        document.getElementById('add_form').addEventListener("submit", function(evt) {
+            evt.preventDefault();
+            postJson('/add', {name: evt.target.elements[0].value, code: myCodeMirror.getValue()})
+        });
     </script>
 </body>
 </html>

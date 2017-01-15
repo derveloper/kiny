@@ -1,7 +1,15 @@
 package cc.vileda.kiny
 
 import com.intellij.openapi.util.Disposer
-import io.vertx.core.Vertx
+import io.vertx.core.*
+import io.vertx.core.eventbus.EventBus
+import io.vertx.core.eventbus.Message
+import io.vertx.core.eventbus.MessageConsumer
+import io.vertx.core.json.Json
+import io.vertx.core.json.JsonObject
+import io.vertx.core.logging.Logger
+import io.vertx.core.logging.LoggerFactory
+import io.vertx.ext.web.Route
 import io.vertx.ext.web.Router
 import io.vertx.ext.web.RoutingContext
 import io.vertx.ext.web.handler.BodyHandler
@@ -32,6 +40,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.util.concurrent.ConcurrentHashMap
 
+val logger: Logger = LoggerFactory.getLogger("cc.vileda.kiny")
 
 fun main(args: Array<String>) {
     val vertx = Vertx.vertx()
@@ -46,38 +55,95 @@ fun main(args: Array<String>) {
 
     router.route().handler { bodyHandler.handle(it) }
     router.route().handler { cookieHandler.handle(it) }
-    router.route("/console").handler { staticHandler.handle(it) }
     router.route("/console/*").handler { staticHandler.handle(it) }
+
+    val eventBus = vertx.eventBus()
 
     router.post("/add").handler {
         val json = it.bodyAsJson
         val name = json.getString("name")
-        apps.put(name, AppDef(name, json.getString("code")))
-        router.routes.removeIf { it.path == "/fn/$name" }
-        router.route("/fn/$name").handler {
-            val appDef = apps[name]
-            appDef?.invoke(it)
+        val ctx = it
+
+        if (apps.containsKey(name)) {
+            apps[name]?.route?.remove()?.disable()
+            vertx.undeploy(apps[name]?.deploymentId) {
+                logger.info("undeployed ${apps[name]?.deploymentId}")
+                apps.remove(name)
+                createNewEndpoint(apps, ctx, eventBus, json, name, router, vertx)
+            }
+        } else {
+            createNewEndpoint(apps, ctx, eventBus, json, name, router, vertx)
         }
-        it.response().end("Added")
     }
 
     createHttpServer.requestHandler { router.accept(it) }.listen(Integer.valueOf(System.getProperty("server.port", "9090")))
+}
+
+private fun createNewEndpoint(apps: ConcurrentHashMap<String, AppDef>, ctx: RoutingContext, eventBus: EventBus, json: JsonObject, name: String, router: Router, vertx: Vertx) {
+    vertx.executeBlocking<Void>({ fut ->
+        val appDef = AppDef(name, json.getString("code"))
+        apps.put(name, appDef)
+
+        vertx.deployVerticle(EndpointVerticle(apps[name]!!)) {
+            appDef.deploymentId = it.result()
+            appDef.route = router.route("/fn/$name").handler {
+                val innerCtx = it
+                val request = JsonObject()
+                        .put("body", it.bodyAsString)
+                        .put("method", it.request().method().name)
+                        .put("headers", it.request().headers().map { JsonObject().put(it.key, it.value) })
+                        .put("params", it.request().params().map { "${it.key}=${it.value}" })
+                eventBus.send("trigger.request.${appDef.deploymentId}", request.encode(), Handler { msg: AsyncResult<Message<JsonObject>> ->
+                    if (msg.succeeded()) {
+                        val response = msg.result().body()
+                        innerCtx.response().setStatusCode(response.getInteger("status")).end(response.getString("body"))
+                    } else {
+                        innerCtx.response().setStatusCode(500).end(msg.cause().message)
+                    }
+                })
+            }
+            fut.complete()
+            logger.info("deployed ${appDef.deploymentId}")
+            logger.info("code ${appDef.code}")
+        }
+    }, { _ ->
+        ctx.response().end("Added")
+    })
+}
+
+class EndpointVerticle(private val appDef: AppDef) : AbstractVerticle() {
+    private var consumer: MessageConsumer<String>? = null
+
+    override fun start() {
+        val eventBus = vertx.eventBus()
+        consumer = eventBus.consumer<String>("trigger.request.${deploymentID()}") {
+            logger.info("(${deploymentID()}) received ${it.body()}")
+            it.reply(appDef.invoke(JsonObject(it.body())))
+        }
+    }
+
+    override fun stop(stopFuture: Future<Void>?) {
+        logger.info("stopping ${deploymentID()}")
+        consumer?.unregister { stopFuture?.complete() }
+    }
 }
 
 data class AppDef(val name: String, val code: String) {
     private val path = Files.createTempFile("kinyscript-", ".kts").toString()
     private val clazz = compile(Files.write(Paths.get(path), code.toByteArray()).toString())
     val instance: Any = clazz.getConstructor(Array<String>::class.java).newInstance(arrayOf<String>())
-    val method: Method = clazz.getMethod("handle", RoutingContext::class.java)
-    fun invoke(param: RoutingContext) {
-        method.invoke(instance, param)
+    val method: Method = clazz.getMethod("handle", JsonObject::class.java)
+    var deploymentId: String? = null
+    var route: Route? = null
+
+    fun invoke(param: JsonObject): JsonObject {
+        return method.invoke(instance, param) as JsonObject
     }
 }
 
 fun compile(taskPath: String): Class<*> {
     val classpathEntries = System.getProperty("java.class.path").split(File.pathSeparator)
     val classpathEntries2 = System.getProperty("sun.boot.class.path").split(File.pathSeparator)
-
 
     val configuration = CompilerConfiguration().apply {
         put<MessageCollector>(CLIConfigurationKeys.MESSAGE_COLLECTOR_KEY, PrintingMessageCollector(System.err, MessageRenderer.PLAIN_RELATIVE_PATHS, false))
