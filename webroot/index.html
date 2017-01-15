@@ -27,7 +27,7 @@
     <h1>kiny console</h1>
     <form id="add_form" action="/add" method="post">
         <label>
-            <input type="text" placeholder="name" name="name" required>
+            <input id="name" type="text" placeholder="name" name="name" required>
         </label>
         <label>
             <textarea name="code" id="code" cols="100" rows="80" required></textarea>
@@ -65,8 +65,9 @@
         );
     </script>
     <style>
-        #code {
-            border: 2px solid #000;
+        #name {
+            margin-bottom: 20px;
+            font-size: 16px;
         }
     </style>
 </body>
