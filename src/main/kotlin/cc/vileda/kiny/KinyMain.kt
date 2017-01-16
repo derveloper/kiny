@@ -56,18 +56,23 @@ fun main(args: Array<String>) {
 
 private fun createNewEndpoint(apps: ConcurrentHashMap<String, AppDef>, ctx: RoutingContext, eventBus: EventBus, json: JsonObject, name: String, router: Router, vertx: Vertx) {
     vertx.executeBlocking<Void>({ fut ->
-        val appDef = AppDef(name, json.getString("code"))
-        apps.put(name, appDef)
+        try {
+            val appDef = AppDef(name, json.getString("code"))
+            apps.put(name, appDef)
 
-        vertx.deployVerticle(EndpointVerticle(apps[name]!!)) {
-            appDef.deploymentId = it.result()
-            appDef.route = createRoute(appDef, eventBus, name, router)
-            fut.complete()
-            logger.info("deployed ${appDef.deploymentId}")
-            logger.info("code ${appDef.code}")
+            vertx.deployVerticle(EndpointVerticle(apps[name]!!)) {
+                appDef.deploymentId = it.result()
+                appDef.route = createRoute(appDef, eventBus, name, router)
+                logger.info("deployed ${appDef.deploymentId}")
+                logger.info("code(${appDef.name}) ${appDef.code}")
+                fut.complete()
+            }
+        } catch (e: Exception) {
+            fut.fail("Compilation error")
         }
-    }, { _ ->
-        ctx.response().end("Added")
+    }, {
+        if (it.succeeded()) ctx.response().end("Added")
+        else ctx.response().setStatusCode(500).end(it.cause().message)
     })
 }
 
