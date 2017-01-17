@@ -8,7 +8,7 @@ import java.nio.file.Paths
 
 data class AppDef(val name: String, val code: String) {
     private val path = Files.createTempFile("kinyscript-", ".kts").toString()
-    private val clazz = cc.vileda.kiny.compile(Files.write(Paths.get(path), code.toByteArray()).toString())
+    private val clazz = compile(Files.write(Paths.get(path), code.toByteArray()).toString())
     val instance: Any = clazz.getConstructor(Array<String>::class.java).newInstance(arrayOf<String>())
     val method: Method = clazz.getMethod("handle", JsonObject::class.java)
     var deploymentId: String? = null

@@ -19,6 +19,10 @@ val logger: Logger = LoggerFactory.getLogger("cc.vileda.kiny")
 
 fun main(args: Array<String>) {
     val vertx = Vertx.vertx()
+    runKiny(vertx, Integer.valueOf(System.getProperty("server.port", "9090")))
+}
+
+public fun runKiny(vertx: Vertx, port: Int) {
     val createHttpServer = vertx.createHttpServer()
     val router = Router.router(vertx)
 
@@ -51,7 +55,7 @@ fun main(args: Array<String>) {
         }
     }
 
-    createHttpServer.requestHandler(router::accept).listen(Integer.valueOf(System.getProperty("server.port", "9090")))
+    createHttpServer.requestHandler(router::accept).listen(port)
 }
 
 private fun createNewEndpoint(
