@@ -28,9 +28,9 @@ fun main(args: Array<String>) {
     val cookieHandler = CookieHandler.create()
     val staticHandler = StaticHandler.create()
 
-    router.route().handler { bodyHandler.handle(it) }
-    router.route().handler { cookieHandler.handle(it) }
-    router.route("/console/*").handler { staticHandler.handle(it) }
+    router.route().handler(bodyHandler::handle)
+    router.route().handler(cookieHandler::handle)
+    router.route("/console/*").handler(staticHandler::handle)
 
     val eventBus = vertx.eventBus()
 
@@ -51,10 +51,18 @@ fun main(args: Array<String>) {
         }
     }
 
-    createHttpServer.requestHandler { router.accept(it) }.listen(Integer.valueOf(System.getProperty("server.port", "9090")))
+    createHttpServer.requestHandler(router::accept).listen(Integer.valueOf(System.getProperty("server.port", "9090")))
 }
 
-private fun createNewEndpoint(apps: ConcurrentHashMap<String, AppDef>, ctx: RoutingContext, eventBus: EventBus, json: JsonObject, name: String, router: Router, vertx: Vertx) {
+private fun createNewEndpoint(
+        apps: ConcurrentHashMap<String, AppDef>,
+        ctx: RoutingContext,
+        eventBus: EventBus,
+        json: JsonObject,
+        name: String,
+        router: Router,
+        vertx: Vertx
+) {
     vertx.executeBlocking<Void>({ fut ->
         try {
             val appDef = AppDef(name, json.getString("code"))
@@ -76,25 +84,23 @@ private fun createNewEndpoint(apps: ConcurrentHashMap<String, AppDef>, ctx: Rout
     })
 }
 
-private fun createRoute(appDef: AppDef, eventBus: EventBus, name: String, router: Router): Route? {
-    return router.route("/fn/$name").handler {
-        val innerCtx = it
-        val request = JsonObject()
-                .put("body", it.bodyAsString)
-                .put("method", it.request().method().name)
-                .put("headers", it.request().headers().map { JsonObject().put(it.key, it.value) })
-                .put("params", it.request().params().map { "${it.key}=${it.value}" })
-        sendRequest(appDef, eventBus, innerCtx, request)
-    }
-}
-
-private fun sendRequest(appDef: AppDef, eventBus: EventBus, innerCtx: RoutingContext, request: JsonObject) {
-    eventBus.send("trigger.request.${appDef.deploymentId}", request.encode(), { msg: AsyncResult<Message<JsonObject>> ->
-        if (msg.succeeded()) {
-            val response = msg.result().body()
-            innerCtx.response().setStatusCode(response.getInteger("status")).end(response.getString("body"))
-        } else {
-            innerCtx.response().setStatusCode(500).end(msg.cause().message)
+private fun createRoute(appDef: AppDef, eventBus: EventBus, name: String, router: Router): Route? =
+        router.route("/fn/$name").handler {
+            val innerCtx = it
+            val request = JsonObject()
+                    .put("body", it.bodyAsString)
+                    .put("method", it.request().method().name)
+                    .put("headers", it.request().headers().map { JsonObject().put(it.key, it.value) })
+                    .put("params", it.request().params().map { "${it.key}=${it.value}" })
+            sendRequest(appDef, eventBus, innerCtx, request)
         }
-    })
-}
+
+private fun sendRequest(appDef: AppDef, eventBus: EventBus, innerCtx: RoutingContext, request: JsonObject) =
+        eventBus.send("trigger.request.${appDef.deploymentId}", request.encode(), { msg: AsyncResult<Message<JsonObject>> ->
+            if (msg.succeeded()) {
+                val response = msg.result().body()
+                innerCtx.response().setStatusCode(response.getInteger("status")).end(response.getString("body"))
+            } else {
+                innerCtx.response().setStatusCode(500).end(msg.cause().message)
+            }
+        })
