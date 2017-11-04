@@ -37,6 +37,7 @@ class KinyTest {
             Assert.assertThat(it.statusCode(), `is`(200))
             fut.complete(null)
         }.exceptionHandler {
+            it.printStackTrace()
             Assert.assertTrue(false)
             fut.complete(null)
         }.end(JsonObject().put("name", "test")

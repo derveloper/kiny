@@ -14,8 +14,12 @@ class EndpointVerticle(private val appDef: AppDef) : AbstractVerticle() {
             logger.info("(${deploymentID()}) received ${it.body()}")
             val message = it
             vertx.executeBlocking<JsonObject>({ fut ->
-                vertx.setTimer(10000, { fut.fail(JsonObject().put("error", "timeout").encode()) })
-                fut.complete(appDef.invoke(JsonObject(message.body())))
+                try {
+                    val invoke = appDef.invoke(JsonObject(message.body()))
+                    fut.complete(invoke)
+                } catch (e: Exception) {
+                    fut.fail(JsonObject().put("error", "timeout").encode())
+                }
             }, {
                 if (it.succeeded()) message.reply(it.result())
                 else message.reply(JsonObject(it.cause().message))

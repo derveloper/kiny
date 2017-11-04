@@ -22,7 +22,7 @@ fun main(args: Array<String>) {
     runKiny(vertx, Integer.valueOf(System.getProperty("server.port", "9090")))
 }
 
-public fun runKiny(vertx: Vertx, port: Int) {
+fun runKiny(vertx: Vertx, port: Int) {
     val createHttpServer = vertx.createHttpServer()
     val router = Router.router(vertx)
 
@@ -80,6 +80,7 @@ private fun createNewEndpoint(
                 fut.complete()
             }
         } catch (e: Exception) {
+            e.printStackTrace()
             fut.fail("Compilation error")
         }
     }, {

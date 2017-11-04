@@ -5,7 +5,6 @@ buildscript {
     ext.kotlin_version = '1.1.51'
 
     repositories {
-        maven { url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1' }
         mavenCentral()
     }
     dependencies {
@@ -16,7 +15,6 @@ buildscript {
 apply plugin: 'kotlin'
 
 repositories {
-    maven { url 'http://dl.bintray.com/kotlin/kotlin-eap-1.1' }
     mavenCentral()
 }
 
@@ -24,9 +22,16 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-compiler:$kotlin_version"
     compile "org.jetbrains.kotlin:kotlin-runtime:$kotlin_version"
-    compile 'io.vertx:vertx-core:3.3.3'
-    compile 'io.vertx:vertx-web:3.3.3'
+    compile 'io.vertx:vertx-core:3.5.0'
+    compile 'io.vertx:vertx-web:3.5.0'
     testCompile 'junit:junit:4.12'
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
 }
 
 jar {
