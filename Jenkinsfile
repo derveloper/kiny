@@ -15,6 +15,13 @@ node {
   stage 'Stage Archive'
   archiveArtifacts artifacts: 'build/libs/*.jar', fingerprint: true
 
-  //stage 'deploy docker'
-  //sh "...."
+  stage 'build docker image'
+  def customImage = docker.build("derveloper/kiny:${env.BUILD_ID}")
+
+  stage 'push docker image'
+  customImage.push()
+  customImage.push('latest')
+
+  stage 'deploy docker image'
+  echo "Deploying derveloper/kiny:${env.BUILD_ID}"
 }
