@@ -1,6 +1,6 @@
 FROM openjdk:8-slim
 
-COPY build/libs/kiny-1.0-SNAPSHOT.jar /kiny.jar
+ADD ./build/libs/kiny-1.0-SNAPSHOT.jar /kiny.jar
 
 EXPOSE 9090
 
