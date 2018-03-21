@@ -1,6 +1,6 @@
 # kiny
 
-your super simple private serverless service running your kotlin (1.1.51) functions like aws lambda
+your super simple private serverless service running your kotlin (1.2.30) functions like aws lambda
 
 kiny compiles your kotlin function on the fly and attaches it to a route
 
