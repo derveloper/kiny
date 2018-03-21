@@ -13,16 +13,16 @@ import org.jetbrains.kotlin.cli.jvm.config.addJvmClasspathRoots
 import org.jetbrains.kotlin.codegen.GeneratedClassLoader
 import org.jetbrains.kotlin.config.CommonConfigurationKeys.MODULE_NAME
 import org.jetbrains.kotlin.config.CompilerConfiguration
+import org.jetbrains.kotlin.config.JVMConfigurationKeys
 import org.jetbrains.kotlin.config.addKotlinSourceRoot
 import org.jetbrains.kotlin.name.NameUtils
 import org.jetbrains.kotlin.resolve.diagnostics.DiagnosticSuppressor
-import org.jetbrains.kotlin.script.KotlinScriptDefinitionProvider
 import org.jetbrains.kotlin.script.StandardScriptDefinition
 import org.jetbrains.kotlin.util.ExtensionProvider
 import org.jetbrains.kotlin.utils.PathUtil
 import java.io.File
 
-fun compile(taskPath: String): Class<*> {
+fun compile(taskPath: String): Class<*>? {
     val classpathEntries = System.getProperty("java.class.path").split(File.pathSeparator)
     val classpathEntries2 = System.getProperty("sun.boot.class.path").split(File.pathSeparator)
 
@@ -31,16 +31,20 @@ fun compile(taskPath: String): Class<*> {
         addKotlinSourceRoot(taskPath)
         addJvmClasspathRoots(classpathEntries.map(::File).plus(classpathEntries2.map(::File)))
         addJvmClasspathRoot(PathUtil.pathUtilJar)
+        add(JVMConfigurationKeys.SCRIPT_DEFINITIONS, StandardScriptDefinition)
         put(MODULE_NAME, "cc.vileda.kiny")
     }
 
     val disposable = Disposer.newDisposable()
     val environment = KotlinCoreEnvironment.createForProduction(disposable, configuration, EnvironmentConfigFiles.JVM_CONFIG_FILES)
-    KotlinScriptDefinitionProvider.getInstance(environment.project)?.addScriptDefinition(StandardScriptDefinition)
     ExtensionProvider.create(DiagnosticSuppressor.EP_NAME)
 
-    val state = KotlinToJVMBytecodeCompiler.analyzeAndGenerate(environment)!!
-    val nameForScript = NameUtils.getScriptNameForFile(environment.getSourceFiles()[0].script!!.name!!)
-    val classLoader = GeneratedClassLoader(state.factory, ClassLoader.getSystemClassLoader())
-    return classLoader.loadClass(nameForScript.asString())
+    val state = KotlinToJVMBytecodeCompiler.analyzeAndGenerate(environment)
+    if (state != null) {
+        val classLoader = GeneratedClassLoader(state.factory, ClassLoader.getSystemClassLoader())
+        val nameForScript = NameUtils.getScriptNameForFile(environment.getSourceFiles()[0].script!!.name!!)
+        return classLoader.loadClass(nameForScript.asString())
+    }
+
+    return null
 }
